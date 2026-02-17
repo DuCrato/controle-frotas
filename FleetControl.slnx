@@ -1,19 +1,20 @@
 <Solution>
   <Folder Name="/Itens de Solução/">
+    <File Path=".env" />
     <File Path="docker-compose.yml" />
   </Folder>
   <Folder Name="/src/" />
   <Folder Name="/src/1 - API/">
-    <Project Path="Fleet.Api/Fleet.Api.csproj" />
+    <Project Path="src/Fleet.Api/Fleet.Api.csproj" />
   </Folder>
   <Folder Name="/src/2 - APPLICATION/">
-    <Project Path="Fleet.Application/Fleet.Application.csproj" />
+    <Project Path="src/Fleet.Application/Fleet.Application.csproj" />
   </Folder>
   <Folder Name="/src/3 - DOMAIN/">
-    <Project Path="Fleet.Domain/Fleet.Domain.csproj" />
+    <Project Path="src/Fleet.Domain/Fleet.Domain.csproj" />
   </Folder>
   <Folder Name="/src/4 - INFRA/">
-    <Project Path="Fleet.Infrastructure/Fleet.Infrastructure.csproj" />
+    <Project Path="src/Fleet.Infrastructure/Fleet.Infrastructure.csproj" />
   </Folder>
   <Folder Name="/tests/" />
 </Solution>
