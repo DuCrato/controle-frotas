@@ -37,7 +37,7 @@ public sealed class VeiculosController(IMediator mediator) : ControllerBase
     public async Task<IActionResult> BuscarPorId(Guid id)
     {
         var veiculo = await mediator.Send(new ObterVeiculoPorIdQuery(id));
-        return veiculo is null ? NotFound() : Ok(veiculo);
+        return Ok(veiculo);
     }
 
     [HttpGet]

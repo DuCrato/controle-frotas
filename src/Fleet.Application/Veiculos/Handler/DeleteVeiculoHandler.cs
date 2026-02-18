@@ -6,7 +6,7 @@ namespace Fleet.Application.Veiculos.Handler;
 
 public sealed class DeleteVeiculoHandler(IVeiculoRepository repository) : IRequestHandler<DeleteVeiculoCommand>
 {
-    public async Task<Unit> Handle(DeleteVeiculoCommand request, CancellationToken cancellationToken)
+    public async Task Handle(DeleteVeiculoCommand request, CancellationToken cancellationToken)
     {
         var veiculo = await repository.ObterPorIdAsync(request.Id, cancellationToken)
             ?? throw new KeyNotFoundException("Veículo não encontrado.");
@@ -15,6 +15,5 @@ public sealed class DeleteVeiculoHandler(IVeiculoRepository repository) : IReque
 
         await repository.SalvarAlteracoesAsync(cancellationToken);
 
-        return Unit.Value;
     }
 }

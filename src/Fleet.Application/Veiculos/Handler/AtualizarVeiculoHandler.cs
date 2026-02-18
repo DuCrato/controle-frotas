@@ -1,6 +1,5 @@
 ﻿using Fleet.Application.Veiculos.Command;
 using Fleet.Application.Veiculos.Interface;
-using Fleet.Domain.Veiculos.Enumeradores;
 using Fleet.Domain.Veiculos.ValueObjects;
 using MediatR;
 
@@ -8,7 +7,7 @@ namespace Fleet.Application.Veiculos.Handler;
 
 public sealed class AtualizarVeiculoHandler(IVeiculoRepository repository) : IRequestHandler<AtualizarVeiculoCommand>
 {
-    public async Task<Unit> Handle(AtualizarVeiculoCommand request, CancellationToken cancellationToken)
+    public async Task Handle(AtualizarVeiculoCommand request, CancellationToken cancellationToken)
     {
         var veiculo = await repository.ObterPorIdAsync(request.Id, cancellationToken)
             ?? throw new KeyNotFoundException("Veículo não encontrado.");
@@ -19,6 +18,5 @@ public sealed class AtualizarVeiculoHandler(IVeiculoRepository repository) : IRe
 
         await repository.SalvarAlteracoesAsync(cancellationToken);
 
-        return Unit.Value;
     }
 }
