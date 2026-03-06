@@ -1,5 +1,4 @@
 using Fleet.Api.Infrastructure;
-using Fleet.Api.Middlewares;
 using Fleet.Application;
 using Fleet.Infrastructure;
 
@@ -27,7 +26,7 @@ if (app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 app.UseAuthorization();
 
-app.UseMiddleware<ExceptionHandlingMiddleware>();
+app.UseExceptionHandler();
 
 app.MapControllers();
 

@@ -12,7 +12,7 @@ public sealed class VeiculosController(IMediator mediator) : ControllerBase
     [HttpPost]
     public async Task<IActionResult> Criar([FromBody] CriarVeiculoCommand command)
     {
-        var id = await mediator.Send(command);
+        var id = await mediator.Send(command, HttpContext.RequestAborted);
         return CreatedAtAction(nameof(BuscarPorId), new { id }, new { id });
     }
 
@@ -22,28 +22,28 @@ public sealed class VeiculosController(IMediator mediator) : ControllerBase
         if (id != command.Id)
             return BadRequest("Id da rota diferente do corpo.");
 
-        await mediator.Send(command);
+        await mediator.Send(command, HttpContext.RequestAborted);
         return NoContent();
     }
 
     [HttpDelete("{id:guid}")]
     public async Task<IActionResult> Deletar(Guid id)
     {
-        await mediator.Send(new DeleteVeiculoCommand(id));
+        await mediator.Send(new DeleteVeiculoCommand(id), HttpContext.RequestAborted);
         return NoContent();
     }
 
     [HttpGet("{id:guid}")]
     public async Task<IActionResult> BuscarPorId(Guid id)
     {
-        var veiculo = await mediator.Send(new ObterVeiculoPorIdQuery(id));
+        var veiculo = await mediator.Send(new ObterVeiculoPorIdQuery(id), HttpContext.RequestAborted);
         return Ok(veiculo);
     }
 
     [HttpGet]
     public async Task<IActionResult> BuscarParaListagem()
     {
-        var lista = await mediator.Send(new ListagemVeiculosQuery());
+        var lista = await mediator.Send(new ListagemVeiculosQuery(), HttpContext.RequestAborted);
         return Ok(lista);
     }
 }

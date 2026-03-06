@@ -16,7 +16,13 @@ namespace Fleet.Application.Veiculos.Handler
             var endereco = new Endereco(request.Estado, request.Cidade);
 
             if (await repository.ExistePorPlacaAsync(placa.Valor, cancellationToken))
-                throw new InvalidOperationException($"Já existe um veículo cadastrado com está placa: {placa.Valor}.");
+                throw new InvalidOperationException($"Já existe um veículo cadastrado com esta placa: {placa.Valor}.");
+
+            if (await repository.ExistePorRenavamAsync(renavam.Valor, cancellationToken))
+                throw new InvalidOperationException($"Já existe um veículo cadastrado com este Renavam: {renavam.Valor}.");
+
+            if (await repository.ExistePorChassiAsync(chassi.Valor, cancellationToken))
+                throw new InvalidOperationException($"Já existe um veículo cadastrado com este chassi: {chassi.Valor}.");
 
             var veiculo = new Veiculo(
                 placa,

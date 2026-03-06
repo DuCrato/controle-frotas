@@ -5,6 +5,8 @@ namespace Fleet.Application.Veiculos.Interface
     public interface IVeiculoRepository
     {
         Task<bool> ExistePorPlacaAsync(string placaNormalizada, CancellationToken cancellationToken);
+        Task<bool> ExistePorRenavamAsync(string renavamNormalizado, CancellationToken cancellationToken);
+        Task<bool> ExistePorChassiAsync(string chassiNormalizado, CancellationToken cancellationToken);
         Task CriarAsync(Veiculo veiculo, CancellationToken cancellationToken);
 
         Task<Veiculo?> ObterPorIdAsync(Guid id, CancellationToken cancellationToken);

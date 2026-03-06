@@ -13,6 +13,18 @@ public sealed class VeiculoRepository(FleetDbContext context) : IVeiculoReposito
             .AnyAsync(v => v.Placa.Valor == placaNormalizada, cancellationToken);
     }
 
+    public async Task<bool> ExistePorRenavamAsync(string renavamNormalizado, CancellationToken cancellationToken)
+    {
+        return await context.Veiculos
+            .AnyAsync(v => v.Renavam.Valor == renavamNormalizado, cancellationToken);
+    }
+
+    public async Task<bool> ExistePorChassiAsync(string chassiNormalizado, CancellationToken cancellationToken)
+    {
+        return await context.Veiculos
+            .AnyAsync(v => v.Chassi.Valor == chassiNormalizado, cancellationToken);
+    }
+
     public async Task CriarAsync(Veiculo veiculo, CancellationToken cancellationToken)
     {
         await context.Veiculos.AddAsync(veiculo, cancellationToken);
