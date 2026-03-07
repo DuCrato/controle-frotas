@@ -1,4 +1,4 @@
-﻿using Fleet.Domain.Veiculos.Enumeradores;
+﻿using Fleet.Domain.Veiculos.Enum;
 using Fleet.Domain.Veiculos.ValueObjects;
 
 namespace Fleet.Domain.Veiculos.Entidades

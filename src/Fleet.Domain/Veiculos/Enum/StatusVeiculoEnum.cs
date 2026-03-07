@@ -1,4 +1,4 @@
-﻿namespace Fleet.Domain.Veiculos.Enumeradores
+﻿namespace Fleet.Domain.Veiculos.Enum
 {
     public enum StatusVeiculoEnum
     {
