@@ -28,7 +28,7 @@ namespace Fleet.Domain.Veiculos.Entidades
             if (string.IsNullOrWhiteSpace(nomeProprietario))
                 throw new ArgumentException("Nome do proprietário é obrigatório.");
 
-            if (!Enum.IsDefined(status))
+            if (!System.Enum.IsDefined(status))
                 throw new ArgumentOutOfRangeException(nameof(status), "Status inválido.");
 
             Id = Guid.NewGuid();
@@ -42,7 +42,7 @@ namespace Fleet.Domain.Veiculos.Entidades
 
         public void AlterarStatus(StatusVeiculoEnum novoStatus)
         {
-            if (!Enum.IsDefined(novoStatus))
+            if (!System.Enum.IsDefined(novoStatus))
                 throw new ArgumentOutOfRangeException(nameof(novoStatus), "Status inválido.");
 
             Status = novoStatus;

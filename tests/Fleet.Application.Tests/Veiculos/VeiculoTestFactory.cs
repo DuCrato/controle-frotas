@@ -1,5 +1,5 @@
 using Fleet.Domain.Veiculos.Entidades;
-using Fleet.Domain.Veiculos.Enumeradores;
+using Fleet.Domain.Veiculos.Enum;
 using Fleet.Domain.Veiculos.ValueObjects;
 
 namespace Fleet.Application.Tests.Veiculos;

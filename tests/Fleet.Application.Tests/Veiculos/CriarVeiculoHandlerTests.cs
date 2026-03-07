@@ -1,7 +1,7 @@
 using Fleet.Application.Veiculos.Command;
 using Fleet.Application.Veiculos.Handler;
 using Fleet.Application.Veiculos.Interface;
-using Fleet.Domain.Veiculos.Enumeradores;
+using Fleet.Domain.Veiculos.Enum;
 using Moq;
 
 namespace Fleet.Application.Tests.Veiculos;
