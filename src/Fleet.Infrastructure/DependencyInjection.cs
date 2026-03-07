@@ -1,4 +1,5 @@
-﻿using Fleet.Application.Veiculos.Interface;
+﻿using Fleet.Application.Condutores.Interface;
+using Fleet.Application.Veiculos.Interface;
 using Fleet.Infrastructure.Context;
 using Fleet.Infrastructure.Repositories;
 using Microsoft.EntityFrameworkCore;
@@ -14,6 +15,7 @@ public static class DependencyInjection
         services.AddDbContext<FleetDbContext>(options =>
             options.UseSqlServer(configuration.GetConnectionString("Default")));
 
+        services.AddScoped<ICondutorRepository, CondutorRepository>();
         services.AddScoped<IVeiculoRepository, VeiculoRepository>();
 
         return services;
