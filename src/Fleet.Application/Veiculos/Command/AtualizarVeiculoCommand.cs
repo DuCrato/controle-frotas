@@ -1,4 +1,4 @@
-﻿using Fleet.Domain.Veiculos.Enumeradores;
+﻿using Fleet.Domain.Veiculos.Enum;
 using MediatR;
 
 namespace Fleet.Application.Veiculos.Command;
