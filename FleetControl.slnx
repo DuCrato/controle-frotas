@@ -16,5 +16,7 @@
   <Folder Name="/src/4 - INFRA/">
     <Project Path="src/Fleet.Infrastructure/Fleet.Infrastructure.csproj" />
   </Folder>
-  <Folder Name="/tests/" />
+  <Folder Name="/tests/">
+    <Project Path="../../Users/willi/source/repos/FleetControl/tests/Fleet.Application.Tests/Fleet.Application.Tests.csproj" />
+  </Folder>
 </Solution>
