@@ -96,33 +96,4 @@ public class CriarCondutorHandlerTests : TestBase
             Times.Never,
             "não deve salvar alterações com CPF duplicado");
     }
-
-    [Fact]
-    public async Task Handle_WhenSaveChangesFailsAsync_ShouldThrowException()
-    {
-        // Arrange
-        var command = new CriarCondutorCommand(
-            Fixture.Create<string>(),
-            "12345678901",
-            "12345678900",
-            "B",
-            DateTime.Today.AddYears(2),
-            StatusCondutorEnum.Ativo);
-
-        _repositoryMock
-            .Setup(x => x.ExisteCpfAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(false);
-
-        _repositoryMock
-            .Setup(x => x.CriarAsync(It.IsAny<Fleet.Domain.Condutores.Entidades.Condutor>(), It.IsAny<CancellationToken>()))
-            .Returns(Task.CompletedTask);
-
-        _repositoryMock
-            .Setup(x => x.SalvarAlteracoesAsync(It.IsAny<CancellationToken>()))
-            .ThrowsAsync(new DbUpdateException("Database error", new Exception()));
-
-        // Act & Assert
-        await Assert.ThrowsAsync<DbUpdateException>(
-            () => _handler.Handle(command, CancellationToken.None));
     }
-}

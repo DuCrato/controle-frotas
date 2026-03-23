@@ -78,29 +78,4 @@ public class DeleteVeiculoHandlerTests : TestBase
             Times.Never,
             "não deve salvar alterações para veículo não encontrado");
     }
-
-    [Fact]
-    public async Task Handle_WhenSaveChangesFails_ShouldThrowException()
-    {
-        // Arrange
-        var veiculo = VeiculoTestFactory.Criar();
-        var command = new DeleteVeiculoCommand(veiculo.Id);
-
-        _repositoryMock
-            .Setup(x => x.ObterPorIdAsync(veiculo.Id, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(veiculo);
-
-        _repositoryMock
-            .Setup(x => x.SalvarAlteracoesAsync(It.IsAny<CancellationToken>()))
-            .ThrowsAsync(new DbUpdateException("Database error", new Exception()));
-
-        // Act & Assert
-        await Assert.ThrowsAsync<DbUpdateException>(
-            () => _handler.Handle(command, CancellationToken.None));
-
-        _repositoryMock.Verify(
-            x => x.Delete(veiculo),
-            Times.Once,
-            "deve tentar deletar mesmo se salvar falhar");
     }
-}

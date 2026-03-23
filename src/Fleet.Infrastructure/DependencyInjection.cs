@@ -1,5 +1,6 @@
 ﻿using Fleet.Application.Condutores.Interface;
 using Fleet.Application.Veiculos.Interface;
+using Fleet.Application.Viagens.Interface;
 using Fleet.Infrastructure.Context;
 using Fleet.Infrastructure.Repositories;
 using Microsoft.EntityFrameworkCore;
@@ -17,6 +18,7 @@ public static class DependencyInjection
 
         services.AddScoped<ICondutorRepository, CondutorRepository>();
         services.AddScoped<IVeiculoRepository, VeiculoRepository>();
+        services.AddScoped<IViagemRepository, ViagemRepository>();
 
         return services;
     }

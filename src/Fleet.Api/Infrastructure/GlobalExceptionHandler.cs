@@ -57,8 +57,8 @@ public sealed class GlobalExceptionHandler(ILogger<GlobalExceptionHandler> logge
         exception switch
         {
             ValidationException => StatusCodes.Status400BadRequest,
-            ArgumentException => StatusCodes.Status400BadRequest,
             ArgumentNullException => StatusCodes.Status400BadRequest,
+            ArgumentException => StatusCodes.Status400BadRequest,
             KeyNotFoundException => StatusCodes.Status404NotFound,
             InvalidOperationException => StatusCodes.Status409Conflict,
             NotImplementedException => StatusCodes.Status501NotImplemented,

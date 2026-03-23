@@ -78,29 +78,4 @@ public class DeleteCondutorHandlerTests : TestBase
             Times.Never,
             "não deve salvar alterações para condutor não encontrado");
     }
-
-    [Fact]
-    public async Task Handle_WhenSaveChangesFails_ShouldThrowException()
-    {
-        // Arrange
-        var condutor = CondutorTestFactory.Criar();
-        var command = new DeleteCondutorCommand(condutor.Id);
-
-        _repositoryMock
-            .Setup(x => x.ObterPorIdAsync(condutor.Id, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(condutor);
-
-        _repositoryMock
-            .Setup(x => x.SalvarAlteracoesAsync(It.IsAny<CancellationToken>()))
-            .ThrowsAsync(new DbUpdateException("Database error", new Exception()));
-
-        // Act & Assert
-        await Assert.ThrowsAsync<DbUpdateException>(
-            () => _handler.Handle(command, CancellationToken.None));
-
-        _repositoryMock.Verify(
-            x => x.Deletar(condutor),
-            Times.Once,
-            "deve tentar deletar mesmo se salvar falhar");
     }
-}

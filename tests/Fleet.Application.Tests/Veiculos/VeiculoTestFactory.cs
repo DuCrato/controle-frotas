@@ -10,9 +10,9 @@ namespace Fleet.Application.Tests.Veiculos;
 /// </summary>
 internal static class VeiculoTestFactory
 {
-    private static int _placaCounter = 1000;
-    private static int _renavamCounter = 10000000000000;
-    private static int _chassiCounter = 1000000000000000;
+    private static long _placaCounter = 1000;
+    private static long _renavamCounter = 10000000000000L;
+    private static long _chassiCounter = 1000000000000000L;
 
     public static Veiculo Criar(
         string placa = "ABC1234",

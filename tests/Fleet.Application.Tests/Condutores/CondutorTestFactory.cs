@@ -10,8 +10,8 @@ namespace Fleet.Application.Tests.Condutores;
 /// </summary>
 internal static class CondutorTestFactory
 {
-    private static int _cpfCounter = 10000000000;
-    private static int _cnhCounter = 10000000000;
+    private static long _cpfCounter = 10000000000L;
+    private static long _cnhCounter = 10000000000L;
 
     /// <summary>
     /// Cria um condutor com valores padrão, permitindo sobrescrita de campos específicos.
