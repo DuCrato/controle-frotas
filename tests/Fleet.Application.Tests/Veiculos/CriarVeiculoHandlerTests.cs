@@ -1,82 +1,186 @@
+using Fleet.Application.Tests.Common;
 using Fleet.Application.Veiculos.Command;
 using Fleet.Application.Veiculos.Handler;
 using Fleet.Application.Veiculos.Interface;
 using Fleet.Domain.Veiculos.Enum;
-using Moq;
 
 namespace Fleet.Application.Tests.Veiculos;
 
-public class CriarVeiculoHandlerTests
+public class CriarVeiculoHandlerTests : TestBase
 {
-    [Fact]
-    public async Task Handle_DeveCriarVeiculo_QuandoDadosForemValidosEUnicos()
+    private readonly Mock<IVeiculoRepository> _repositoryMock;
+    private readonly CriarVeiculoHandler _handler;
+
+    public CriarVeiculoHandlerTests()
     {
-        var repository = new Mock<IVeiculoRepository>();
-        repository.Setup(x => x.ExistePorPlacaAsync(It.IsAny<string>(), It.IsAny<CancellationToken>())).ReturnsAsync(false);
-        repository.Setup(x => x.ExistePorRenavamAsync(It.IsAny<string>(), It.IsAny<CancellationToken>())).ReturnsAsync(false);
-        repository.Setup(x => x.ExistePorChassiAsync(It.IsAny<string>(), It.IsAny<CancellationToken>())).ReturnsAsync(false);
-        repository.Setup(x => x.CriarAsync(It.IsAny<Fleet.Domain.Veiculos.Entidades.Veiculo>(), It.IsAny<CancellationToken>())).Returns(Task.CompletedTask);
-        repository.Setup(x => x.SalvarAlteracoesAsync(It.IsAny<CancellationToken>())).ReturnsAsync(1);
-
-        var handler = new CriarVeiculoHandler(repository.Object);
-        var command = new CriarVeiculoCommand(
-            "ABC1234",
-            "12345678901",
-            "9BWZZZ377VT004251",
-            "Joao Silva",
-            StatusVeiculoEnum.Ativo,
-            "SP",
-            "Sao Paulo");
-
-        var id = await handler.Handle(command, CancellationToken.None);
-
-        Assert.NotEqual(Guid.Empty, id);
-        repository.Verify(x => x.CriarAsync(It.IsAny<Fleet.Domain.Veiculos.Entidades.Veiculo>(), It.IsAny<CancellationToken>()), Times.Once);
-        repository.Verify(x => x.SalvarAlteracoesAsync(It.IsAny<CancellationToken>()), Times.Once);
+        _repositoryMock = new Mock<IVeiculoRepository>();
+        _handler = new CriarVeiculoHandler(_repositoryMock.Object);
     }
 
     [Fact]
-    public async Task Handle_DeveLancarExcecao_QuandoPlacaJaExistir()
+    public async Task Handle_WhenAllIdentifiersAreUnique_ShouldCreateVehicleSuccessfully()
     {
-        var repository = new Mock<IVeiculoRepository>();
-        repository.Setup(x => x.ExistePorPlacaAsync(It.IsAny<string>(), It.IsAny<CancellationToken>())).ReturnsAsync(true);
-
-        var handler = new CriarVeiculoHandler(repository.Object);
+        // Arrange
         var command = new CriarVeiculoCommand(
             "ABC1234",
-            "12345678901",
+            "12345678901234",
             "9BWZZZ377VT004251",
-            "Joao Silva",
+            Fixture.Create<string>(),
             StatusVeiculoEnum.Ativo,
             "SP",
-            "Sao Paulo");
+            "São Paulo");
 
-        await Assert.ThrowsAsync<InvalidOperationException>(() => handler.Handle(command, CancellationToken.None));
+        _repositoryMock
+            .Setup(x => x.ExistePorPlacaAsync(command.Placa, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(false);
 
-        repository.Verify(x => x.CriarAsync(It.IsAny<Fleet.Domain.Veiculos.Entidades.Veiculo>(), It.IsAny<CancellationToken>()), Times.Never);
-        repository.Verify(x => x.SalvarAlteracoesAsync(It.IsAny<CancellationToken>()), Times.Never);
+        _repositoryMock
+            .Setup(x => x.ExistePorRenavamAsync(command.Renavam, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(false);
+
+        _repositoryMock
+            .Setup(x => x.ExistePorChassiAsync(command.Chassi, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(false);
+
+        _repositoryMock
+            .Setup(x => x.CriarAsync(It.IsAny<Fleet.Domain.Veiculos.Entidades.Veiculo>(), It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
+
+        _repositoryMock
+            .Setup(x => x.SalvarAlteracoesAsync(It.IsAny<CancellationToken>()))
+            .ReturnsAsync(1);
+
+        // Act
+        var id = await _handler.Handle(command, CancellationToken.None);
+
+        // Assert
+        id.Should().NotBe(Guid.Empty);
+
+        _repositoryMock.Verify(
+            x => x.ExistePorPlacaAsync(command.Placa, It.IsAny<CancellationToken>()),
+            Times.Once,
+            "deve verificar se placa já existe");
+
+        _repositoryMock.Verify(
+            x => x.ExistePorRenavamAsync(command.Renavam, It.IsAny<CancellationToken>()),
+            Times.Once,
+            "deve verificar se renavam já existe");
+
+        _repositoryMock.Verify(
+            x => x.ExistePorChassiAsync(command.Chassi, It.IsAny<CancellationToken>()),
+            Times.Once,
+            "deve verificar se chassi já existe");
+
+        _repositoryMock.Verify(
+            x => x.CriarAsync(It.IsAny<Fleet.Domain.Veiculos.Entidades.Veiculo>(), It.IsAny<CancellationToken>()),
+            Times.Once,
+            "deve criar o veículo");
+
+        _repositoryMock.Verify(
+            x => x.SalvarAlteracoesAsync(It.IsAny<CancellationToken>()),
+            Times.Once,
+            "deve salvar as alterações");
     }
 
     [Fact]
-    public async Task Handle_DeveLancarExcecao_QuandoRenavamJaExistir()
+    public async Task Handle_WhenPlateAlreadyExists_ShouldThrowInvalidOperationException()
     {
-        var repository = new Mock<IVeiculoRepository>();
-        repository.Setup(x => x.ExistePorPlacaAsync(It.IsAny<string>(), It.IsAny<CancellationToken>())).ReturnsAsync(false);
-        repository.Setup(x => x.ExistePorRenavamAsync(It.IsAny<string>(), It.IsAny<CancellationToken>())).ReturnsAsync(true);
-
-        var handler = new CriarVeiculoHandler(repository.Object);
+        // Arrange
+        var placa = "ABC1234";
         var command = new CriarVeiculoCommand(
-            "ABC1234",
-            "12345678901",
+            placa,
+            "12345678901234",
             "9BWZZZ377VT004251",
-            "Joao Silva",
+            Fixture.Create<string>(),
             StatusVeiculoEnum.Ativo,
             "SP",
-            "Sao Paulo");
+            "São Paulo");
 
-        await Assert.ThrowsAsync<InvalidOperationException>(() => handler.Handle(command, CancellationToken.None));
+        _repositoryMock
+            .Setup(x => x.ExistePorPlacaAsync(placa, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(true);
 
-        repository.Verify(x => x.CriarAsync(It.IsAny<Fleet.Domain.Veiculos.Entidades.Veiculo>(), It.IsAny<CancellationToken>()), Times.Never);
-        repository.Verify(x => x.SalvarAlteracoesAsync(It.IsAny<CancellationToken>()), Times.Never);
+        // Act & Assert
+        var exception = await Assert.ThrowsAsync<InvalidOperationException>(
+            () => _handler.Handle(command, CancellationToken.None));
+
+        exception.Message.Should().Contain("placa");
+
+        _repositoryMock.Verify(
+            x => x.CriarAsync(It.IsAny<Fleet.Domain.Veiculos.Entidades.Veiculo>(), It.IsAny<CancellationToken>()),
+            Times.Never,
+            "não deve criar veículo com placa duplicada");
+    }
+
+    [Fact]
+    public async Task Handle_WhenRenavamAlreadyExists_ShouldThrowInvalidOperationException()
+    {
+        // Arrange
+        var renavam = "12345678901234";
+        var command = new CriarVeiculoCommand(
+            "ABC1234",
+            renavam,
+            "9BWZZZ377VT004251",
+            Fixture.Create<string>(),
+            StatusVeiculoEnum.Ativo,
+            "SP",
+            "São Paulo");
+
+        _repositoryMock
+            .Setup(x => x.ExistePorPlacaAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(false);
+
+        _repositoryMock
+            .Setup(x => x.ExistePorRenavamAsync(renavam, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(true);
+
+        // Act & Assert
+        var exception = await Assert.ThrowsAsync<InvalidOperationException>(
+            () => _handler.Handle(command, CancellationToken.None));
+
+        exception.Message.Should().Contain("renavam");
+
+        _repositoryMock.Verify(
+            x => x.CriarAsync(It.IsAny<Fleet.Domain.Veiculos.Entidades.Veiculo>(), It.IsAny<CancellationToken>()),
+            Times.Never,
+            "não deve criar veículo com renavam duplicado");
+    }
+
+    [Fact]
+    public async Task Handle_WhenChassisAlreadyExists_ShouldThrowInvalidOperationException()
+    {
+        // Arrange
+        var chassi = "9BWZZZ377VT004251";
+        var command = new CriarVeiculoCommand(
+            "ABC1234",
+            "12345678901234",
+            chassi,
+            Fixture.Create<string>(),
+            StatusVeiculoEnum.Ativo,
+            "SP",
+            "São Paulo");
+
+        _repositoryMock
+            .Setup(x => x.ExistePorPlacaAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(false);
+
+        _repositoryMock
+            .Setup(x => x.ExistePorRenavamAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(false);
+
+        _repositoryMock
+            .Setup(x => x.ExistePorChassiAsync(chassi, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(true);
+
+        // Act & Assert
+        var exception = await Assert.ThrowsAsync<InvalidOperationException>(
+            () => _handler.Handle(command, CancellationToken.None));
+
+        exception.Message.Should().Contain("chassi");
+
+        _repositoryMock.Verify(
+            x => x.CriarAsync(It.IsAny<Fleet.Domain.Veiculos.Entidades.Veiculo>(), It.IsAny<CancellationToken>()),
+            Times.Never,
+            "não deve criar veículo com chassi duplicado");
     }
 }

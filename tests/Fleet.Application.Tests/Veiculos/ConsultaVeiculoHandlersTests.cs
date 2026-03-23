@@ -1,43 +1,110 @@
+using Fleet.Application.Tests.Common;
 using Fleet.Application.Veiculos.Handler;
 using Fleet.Application.Veiculos.Interface;
 using Fleet.Application.Veiculos.Query;
-using Moq;
 
 namespace Fleet.Application.Tests.Veiculos;
 
-public class ConsultaVeiculoHandlersTests
+public class ConsultaVeiculoHandlersTests : TestBase
 {
-    [Fact]
-    public async Task ObterPorId_DeveRetornarDto_QuandoVeiculoExistir()
+    private readonly Mock<IVeiculoRepository> _repositoryMock;
+
+    public ConsultaVeiculoHandlersTests()
     {
-        var veiculo = VeiculoTestFactory.Criar();
-        var repository = new Mock<IVeiculoRepository>();
-        repository.Setup(x => x.ObterPorIdAsync(veiculo.Id, It.IsAny<CancellationToken>())).ReturnsAsync(veiculo);
-
-        var handler = new ObterVeiculoPorIdHandler(repository.Object);
-
-        var dto = await handler.Handle(new ObterVeiculoPorIdQuery(veiculo.Id), CancellationToken.None);
-
-        Assert.Equal(veiculo.Id, dto.Id);
-        Assert.Equal(veiculo.Placa.Valor, dto.Placa);
+        _repositoryMock = new Mock<IVeiculoRepository>();
     }
 
     [Fact]
-    public async Task Listagem_DeveRetornarDtos_QuandoExistiremVeiculos()
+    public async Task ObterVeiculoPorIdHandler_WhenVehicleExists_ShouldReturnVehicleDto()
     {
+        // Arrange
+        var veiculo = VeiculoTestFactory.Criar();
+        var query = new ObterVeiculoPorIdQuery(veiculo.Id);
+        var handler = new ObterVeiculoPorIdHandler(_repositoryMock.Object);
+
+        _repositoryMock
+            .Setup(x => x.ObterPorIdAsync(veiculo.Id, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(veiculo);
+
+        // Act
+        var dto = await handler.Handle(query, CancellationToken.None);
+
+        // Assert
+        dto.Should().NotBeNull();
+        dto.Id.Should().Be(veiculo.Id);
+        dto.Placa.Should().Be(veiculo.Placa.Valor);
+
+        _repositoryMock.Verify(
+            x => x.ObterPorIdAsync(veiculo.Id, It.IsAny<CancellationToken>()),
+            Times.Once,
+            "deve buscar o veículo por ID");
+    }
+
+    [Fact]
+    public async Task ObterVeiculoPorIdHandler_WhenVehicleNotExists_ShouldReturnNull()
+    {
+        // Arrange
+        var veiculoId = Guid.NewGuid();
+        var query = new ObterVeiculoPorIdQuery(veiculoId);
+        var handler = new ObterVeiculoPorIdHandler(_repositoryMock.Object);
+
+        _repositoryMock
+            .Setup(x => x.ObterPorIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync((Fleet.Domain.Veiculos.Entidades.Veiculo?)null);
+
+        // Act
+        var dto = await handler.Handle(query, CancellationToken.None);
+
+        // Assert
+        dto.Should().BeNull();
+    }
+
+    [Fact]
+    public async Task ListagemVeiculosHandler_WhenVehiclesExist_ShouldReturnAllVehicles()
+    {
+        // Arrange
         var veiculos = new List<Fleet.Domain.Veiculos.Entidades.Veiculo>
         {
             VeiculoTestFactory.Criar(),
-            VeiculoTestFactory.Criar("BRA1234", "23456789012", "9BWZZZ377VT004252", "Carlos Lima")
+            VeiculoTestFactory.Criar("BRA1234", "23456789012345", "9BWZZZ377VT004252", Fixture.Create<string>()),
+            VeiculoTestFactory.Criar("CAR5678", "34567890123456", "9BWZZZ377VT004253", Fixture.Create<string>())
         };
 
-        var repository = new Mock<IVeiculoRepository>();
-        repository.Setup(x => x.ListagemAsync(It.IsAny<CancellationToken>())).ReturnsAsync(veiculos);
+        var query = new ListagemVeiculosQuery();
+        var handler = new ListagemVeiculosHandler(_repositoryMock.Object);
 
-        var handler = new ListagemVeiculosHandler(repository.Object);
+        _repositoryMock
+            .Setup(x => x.ListagemAsync(It.IsAny<CancellationToken>()))
+            .ReturnsAsync(veiculos);
 
-        var resultado = await handler.Handle(new ListagemVeiculosQuery(), CancellationToken.None);
+        // Act
+        var resultado = await handler.Handle(query, CancellationToken.None);
 
-        Assert.Equal(2, resultado.Count);
+        // Assert
+        resultado.Should().HaveCount(3);
+        resultado.Should().AllSatisfy(x => x.Should().NotBeNull());
+
+        _repositoryMock.Verify(
+            x => x.ListagemAsync(It.IsAny<CancellationToken>()),
+            Times.Once,
+            "deve buscar todos os veículos");
+    }
+
+    [Fact]
+    public async Task ListagemVeiculosHandler_WhenNoVehiclesExist_ShouldReturnEmptyList()
+    {
+        // Arrange
+        var query = new ListagemVeiculosQuery();
+        var handler = new ListagemVeiculosHandler(_repositoryMock.Object);
+
+        _repositoryMock
+            .Setup(x => x.ListagemAsync(It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new List<Fleet.Domain.Veiculos.Entidades.Veiculo>());
+
+        // Act
+        var resultado = await handler.Handle(query, CancellationToken.None);
+
+        // Assert
+        resultado.Should().BeEmpty();
     }
 }
